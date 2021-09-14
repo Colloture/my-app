@@ -4,130 +4,91 @@ import {
   MenuItem,
   TextField,
   Typography,
-} from "@material-ui/core";
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
-import firebase from "../auth/firebase";
-import imagename from "../Images/icons8-police-96.png";
-import Screen from "../templates/Screen";
+} from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import imagename from '../Images/icons8-police-96.png';
+import { register } from '../store/actions/authActions';
+import Screen from '../templates/Screen';
 
 export default function RegisterPage() {
+  const state = useSelector(state => state);
   const history = useHistory();
-  const [role, setRole] = useState("");
-  const [email, setEmail] = useState("");
-  const [fullnames, setFullnames] = useState("");
-  const [phoneno, setPhoneno] = useState("");
-  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const user = state.auth.user;
+
+  const [role, setRole] = useState('');
+  const [email, setEmail] = useState('');
+  const [fullnames, setFullnames] = useState('');
+  const [phoneno, setPhoneno] = useState('');
+  const [password, setPassword] = useState('');
   const [location, setLocation] = useState(null);
 
   const users = [
     {
-      value: "witness",
-      label: "Witness",
+      value: 'witness',
+      label: 'Witness',
     },
     {
-      value: "police",
-      label: "Police officer",
+      value: 'police',
+      label: 'Police officer',
     },
   ];
-
-  const register = () => {
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((data) => {
-        firebase
-          .database()
-          .ref("users/" + data.user.uid)
-          .set({
-            fullnames,
-            email,
-            phoneno,
-            role,
-            location,
-          })
-          .then(() => {
-            firebase.auth().onAuthStateChanged((user) => {
-              if (user) {
-                //redirect
-                firebase
-                  .database()
-                  .ref("users/" + user.uid)
-                  .get()
-                  .then((info) => {
-                    if (info.val().role === "police") {
-                      //redirect to police home
-                      history.push("/police-home");
-                    } else {
-                      //redirect to witness home
-                      history.push("/witness-home");
-                    }
-                  });
-              }
-            });
-          });
-      });
-  };
 
   function getLocation() {
     if (navigator.geolocation) {
       navigator.permissions
-        .query({ name: "geolocation" })
+        .query({ name: 'geolocation' })
         .then(function (result) {
-          if (result.state === "granted") {
+          if (result.state === 'granted') {
             report(result.state);
-            // geoBtn.style.display = 'none';
-            navigator.geolocation.getCurrentPosition((pos) => {
+            navigator.geolocation.getCurrentPosition(pos => {
               setLocation({
                 latitude: pos.coords.latitude,
                 longitude: pos.coords.longitude,
               });
             });
-          } else if (result.state === "prompt") {
+          } else if (result.state === 'prompt') {
             report(result.state);
-            // geoBtn.style.display = 'none';
-            navigator.geolocation.getCurrentPosition((pos) => {
+            navigator.geolocation.getCurrentPosition(pos => {
               setLocation({
                 latitude: pos.coords.latitude,
                 longitude: pos.coords.longitude,
               });
             });
-          } else if (result.state === "denied") {
+          } else if (result.state === 'denied') {
             report(result.state);
-            // geoBtn.style.display = 'inline';
           }
-
           result.onchange = function () {
             report(result.state);
           };
         });
-
       function report(state) {
-        console.log("Permission " + state);
+        console.log('Permission ' + state);
       }
-
-      //
     } else {
-      alert("Geolocation is not supported by this browser.");
+      alert('Geolocation is not supported by this browser.');
     }
   }
 
   useEffect(() => {
     getLocation();
-  }, [history]);
+    JSON.stringify(user) !== '{}' && history.push('/home');
+  }, [history, user]);
 
   return (
-    <Screen>
+    <Screen auth>
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           padding: 36,
         }}
       >
         <Avatar
-          alt="Remy Sharp"
+          alt='Remy Sharp'
           src={imagename}
           style={{
             marginBottom: 20,
@@ -135,9 +96,9 @@ export default function RegisterPage() {
           }}
         />
         <Typography
-          variant="h5"
+          variant='h5'
           style={{
-            fontWeight: "bold",
+            fontWeight: 'bold',
             marginBottom: 16,
           }}
         >
@@ -145,22 +106,22 @@ export default function RegisterPage() {
         </Typography>
         <TextField
           fullWidth
-          id="p_fullname"
-          label="Input FullNames"
-          variant="outlined"
+          id='p_fullname'
+          label='Input FullNames'
+          variant='outlined'
           value={fullnames}
-          onChange={(event) => setFullnames(event.target.value)}
+          onChange={event => setFullnames(event.target.value)}
           style={{
             marginBottom: 16,
           }}
         />
         <TextField
           fullWidth
-          id="p_phoneno"
-          label="Input Phone Number"
-          variant="outlined"
+          id='p_phoneno'
+          label='Input Phone Number'
+          variant='outlined'
           value={phoneno}
-          onChange={(event) => setPhoneno(event.target.value)}
+          onChange={event => setPhoneno(event.target.value)}
           style={{
             marginBottom: 16,
           }}
@@ -170,20 +131,20 @@ export default function RegisterPage() {
           style={{
             marginBottom: 16,
           }}
-          id="P_email"
-          label="Input Email"
-          variant="outlined"
+          id='P_email'
+          label='Input Email'
+          variant='outlined'
           value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={event => setEmail(event.target.value)}
         />
 
         <TextField
           fullWidth
-          id="p_password"
-          label="Input password"
-          variant="outlined"
+          id='p_password'
+          label='Input password'
+          variant='outlined'
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={event => setPassword(event.target.value)}
           style={{
             marginBottom: 16,
           }}
@@ -191,15 +152,15 @@ export default function RegisterPage() {
         <TextField
           select
           fullWidth
-          label="Select Your Role"
-          variant="outlined"
+          label='Select Your Role'
+          variant='outlined'
           style={{
             marginBottom: 16,
           }}
           value={role}
-          onChange={(event) => setRole(event.target.value)}
+          onChange={event => setRole(event.target.value)}
         >
-          {users.map((option) => (
+          {users.map(option => (
             <MenuItem key={option.value} value={option.value}>
               {option.label}
             </MenuItem>
@@ -208,7 +169,7 @@ export default function RegisterPage() {
 
         {location === null && (
           <Button
-            variant={"outlined"}
+            variant={'outlined'}
             fullWidth
             style={{
               marginBottom: 16,
@@ -222,10 +183,12 @@ export default function RegisterPage() {
         )}
         <Button
           fullWidth
-          variant="contained"
-          color="primary"
+          variant='contained'
+          color='primary'
           onClick={() => {
-            register();
+            dispatch(
+              register(fullnames, email, phoneno, role, location, password)
+            );
           }}
           disabled={location === null}
           style={{}}

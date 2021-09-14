@@ -1,28 +1,30 @@
 import {
+  Avatar,
   Button,
   Card,
   List,
+  ListItem,
   ListItemAvatar,
-  ListItemText,
   ListItemSecondaryAction,
-} from "@material-ui/core";
-import React, { useEffect, useRef, useState } from "react";
-import { useHistory } from "react-router-dom";
-import firebase from "../auth/firebase";
-import Screen from "../templates/Screen";
+  ListItemText,
+  Typography,
+} from '@material-ui/core';
+import { Room } from '@material-ui/icons';
 import {
   GoogleMap,
   InfoWindow,
   Marker,
   useJsApiLoader,
-} from "@react-google-maps/api";
-import { ListItem } from "@material-ui/core";
-import { Avatar } from "@material-ui/core";
-import { Room } from "@material-ui/icons";
+} from '@react-google-maps/api';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../store/actions/authActions';
+import { loadRequests } from '../store/actions/dataActions';
+import Screen from '../templates/Screen';
 
 const containerStyle = {
-  width: "100%",
-  height: "100vh",
+  width: '100%',
+  height: '100vh',
 };
 
 const center = {
@@ -31,88 +33,78 @@ const center = {
 };
 
 export default function PoliceHome() {
-  // const [map, setMap] = useState(null);
-  const history = useHistory();
-  const mounted = useRef(false);
-  const [requests, setRequests] = useState([]);
+  const dispatch = useDispatch();
+
+  const state = useSelector(st => st);
+  const user = state.auth.user;
+  const requests = state.data.requests.list;
+
   const [otherLocation, setOtheLocation] = useState(null);
 
   const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: "",
+    id: 'google-map-script',
+    googleMapsApiKey: '',
   });
 
   const onLoad = React.useCallback(function callback(map) {
     const bounds = new window.google.maps.LatLngBounds();
     map.fitBounds(bounds);
-    // if (mounted.current) {
-    //   setMap(map);
-    // }
   }, []);
 
   const onUnmount = React.useCallback(function callback(map) {
     // setMap(null);
   }, []);
 
-  const logout = () => {
-    firebase.auth().signOut();
-  };
-
-  const dataload = () => {
-    firebase
-      .database()
-      .ref("requests")
-      .on("value", (info) => {
-        let mydata = info.toJSON();
-        console.log("Data: ", Object.values(mydata));
-        // if (mounted.current) {
-        setRequests(Object.values(mydata));
-        // }
-      });
-  };
-
   useEffect(() => {
-    dataload();
-
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        //
-      } else {
-        history.push("/");
-      }
-    });
-  }, [history]);
+    dispatch(loadRequests());
+  }, [dispatch]);
 
   return (
     <Screen>
       <Card
+        variant='outlined'
         style={{
           zIndex: 2,
-          position: "fixed",
-          top: 16,
-          left: 16,
-          width: window.innerWidth - 32,
+          position: 'fixed',
+          top: 14,
+          left: 18,
+          width: window.innerWidth - 36,
         }}
       >
-        Police Home
-        <Button
-          onClick={() => {
-            logout();
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: 8,
           }}
         >
-          Logout
-        </Button>
+          {' '}
+          <Typography color='primary'>
+            <b>{user.fullnames}</b>
+          </Typography>
+          <div>Police</div>
+          <Button
+            size='small'
+            variant='outlined'
+            onClick={() => {
+              dispatch(logout());
+            }}
+          >
+            Logout
+          </Button>
+        </div>
       </Card>
 
       <Card
         style={{
           zIndex: 2,
-          position: "fixed",
+          position: 'fixed',
           bottom: 16,
           left: 16,
           width: window.innerWidth - 32,
           maxHeight: 200,
-          overflowY: "scroll",
+          overflowY: 'scroll',
         }}
       >
         <List>
@@ -126,7 +118,7 @@ export default function PoliceHome() {
               <ListItemText primary={witness} secondary={phoneno} />
               <ListItemSecondaryAction>
                 <Button
-                  variant="outlined"
+                  variant='outlined'
                   onClick={() => {
                     setOtheLocation({ witness, phoneno, location });
                   }}
@@ -147,7 +139,6 @@ export default function PoliceHome() {
           onLoad={onLoad}
           onUnmount={onUnmount}
         >
-          {/* Child components, such as markers, info windows, etc. */}
           <Marker
             position={{
               lat: -0.43010375799626616,
@@ -176,11 +167,7 @@ export default function PoliceHome() {
                   lng: otherLocation.location.longitude,
                 }}
               >
-                <div>
-                  {otherLocation.witness}
-                  {/* <br />
-                  {otherLocation.phoneno} */}
-                </div>
+                <div>{otherLocation.witness}</div>
               </InfoWindow>
             </Marker>
           )}
