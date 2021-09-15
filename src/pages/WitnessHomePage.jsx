@@ -8,6 +8,8 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import policeSvg from '../assets/police.svg';
+import stationSvg from '../assets/station.svg';
 import { logout } from '../store/actions/authActions';
 import { loadUsers } from '../store/actions/dataActions';
 import Screen from '../templates/Screen';
@@ -35,6 +37,8 @@ export default function WitnessHomePage() {
         return police;
       }
     });
+
+  const posts = state.data.posts.list;
 
   const history = useHistory();
   const dispatch = useDispatch();
@@ -190,6 +194,49 @@ export default function WitnessHomePage() {
             ></Marker>
           )}
 
+          {posts?.map(({ name, contact, location }) => (
+            <Marker
+              key={Math.random() * 1000}
+              position={{
+                lat: location.latitude,
+                lng: location.longitude,
+              }}
+              onClick={() => {
+                setSelectedLocation(location);
+              }}
+              icon={stationSvg}
+            >
+              {selectedLocation === location && (
+                <InfoWindow
+                  position={{
+                    lat: location.latitude,
+                    lng: location.longitude,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      // alignItems: 'center',
+                    }}
+                  >
+                    <Typography variant='body2' color='textPrimary'>
+                      {name}
+                    </Typography>
+                    <Typography variant='body2' color='textSecondary'>
+                      {contact}
+                    </Typography>
+                    <Typography variant='body2' color='primary'>
+                      Police Station
+                    </Typography>
+                  </div>
+                </InfoWindow>
+              )}
+            </Marker>
+          ))}
+
           {police &&
             police.map(
               ({ location, fullnames, phoneno, email, post, type }) => {
@@ -203,6 +250,7 @@ export default function WitnessHomePage() {
                     onClick={() => {
                       setSelectedLocation(location);
                     }}
+                    icon={policeSvg}
                   >
                     {selectedLocation === location && (
                       <InfoWindow

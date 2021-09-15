@@ -99,17 +99,13 @@ export default function RegisterPage() {
   }, [history, user, dispatch]);
 
   const submitForm = () => {
-    if ((fullnames.length || email.length || phoneno.length) < 1) {
-      setErr('Fill in all fields');
-    }
-
-    if (password.length < 6) {
-      setErr('Password should have 6 or more characters');
+    if (fullnames.length < 1 || email.length < 1 || phoneno.length < 1) {
+      setErr('Please fill in all fields');
       return;
     }
 
     if (fullnames.length < 3) {
-      setErr('Name is short');
+      setErr('Name is too short');
       return;
     }
 
@@ -118,16 +114,30 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!location) {
-      setErr('Location is required');
+    if (
+      !email.match(
+        /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+      )
+    ) {
+      setErr('Please enter a valid email');
+      return;
+    }
+
+    if (password.length < 6) {
+      setErr('Password should have 6 or more characters');
       return;
     }
 
     if (role === 'police') {
-      if ((post.length || type.length) < 1) {
-        setErr('Fill in all fields');
+      if (post.length < 1 || type.length < 1) {
+        setErr('Please fill in all fields');
         return;
       }
+    }
+
+    if (!location) {
+      setErr('Location is required');
+      return;
     }
 
     role === 'police'
@@ -185,6 +195,7 @@ export default function RegisterPage() {
           User SignUp Page
         </Typography>
         <TextField
+          required
           fullWidth
           id='p_fullname'
           label='Input FullNames'
@@ -197,6 +208,7 @@ export default function RegisterPage() {
         />
         <TextField
           fullWidth
+          required
           id='p_phoneno'
           label='Input Phone Number'
           variant='outlined'
@@ -207,6 +219,7 @@ export default function RegisterPage() {
           }}
         />
         <TextField
+          required
           fullWidth
           style={{
             marginBottom: 16,
@@ -220,6 +233,7 @@ export default function RegisterPage() {
         />
 
         <TextField
+          required
           fullWidth
           type='password'
           id='p_password'
@@ -232,6 +246,7 @@ export default function RegisterPage() {
           }}
         />
         <TextField
+          required
           select
           fullWidth
           label='Select Your Role'
@@ -301,6 +316,17 @@ export default function RegisterPage() {
             Enable location to proceed
           </Button>
         )}
+        {err && (
+          <Typography
+            color='error'
+            variant='body1'
+            style={{
+              marginBottom: 16,
+            }}
+          >
+            {err}
+          </Typography>
+        )}
         <Button
           fullWidth
           variant='contained'
@@ -311,17 +337,6 @@ export default function RegisterPage() {
         >
           Register
         </Button>
-        {err && (
-          <Typography
-            color='error'
-            variant='body1'
-            style={{
-              marginTop: 16,
-            }}
-          >
-            {err}
-          </Typography>
-        )}
         <Typography
           variant='body1'
           style={{

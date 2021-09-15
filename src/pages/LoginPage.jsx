@@ -7,6 +7,7 @@ import { login } from '../store/actions/authActions';
 import Screen from '../templates/Screen';
 
 export default function LoginPage() {
+  const [err, setErr] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -74,7 +75,18 @@ export default function LoginPage() {
             setPassword(event.target.value);
           }}
         />
-        <div>{error?.message}</div>
+
+        {(err || error) && (
+          <Typography
+            color='error'
+            variant='body1'
+            style={{
+              marginBottom: 16,
+            }}
+          >
+            {error?.message || err}
+          </Typography>
+        )}
         <Button
           fullWidth
           variant='contained'
@@ -83,6 +95,15 @@ export default function LoginPage() {
             marginBottom: 16,
           }}
           onClick={() => {
+            if (
+              !email.match(
+                /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+              )
+            ) {
+              setErr('Please enter a valid email');
+              return;
+            }
+
             dispatch(login({ email, password }));
           }}
         >
