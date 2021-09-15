@@ -68,6 +68,7 @@ export default function LoginPage() {
           style={{
             marginBottom: 16,
           }}
+          type='password'
           value={password}
           onChange={event => {
             setPassword(event.target.value);
@@ -88,7 +89,7 @@ export default function LoginPage() {
           Login
         </Button>
         <Typography
-          variant='h6'
+          variant='body1'
           style={{
             float: 'left',
           }}

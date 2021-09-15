@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import imagename from '../Images/icons8-police-96.png';
 import { register } from '../store/actions/authActions';
+import { loadPosts } from '../store/actions/dataActions';
 import Screen from '../templates/Screen';
 
 export default function RegisterPage() {
@@ -17,6 +18,7 @@ export default function RegisterPage() {
   const history = useHistory();
   const dispatch = useDispatch();
   const user = state.auth.user;
+  const posts = state.data?.posts?.list;
 
   const [role, setRole] = useState('');
   const [email, setEmail] = useState('');
@@ -24,8 +26,11 @@ export default function RegisterPage() {
   const [phoneno, setPhoneno] = useState('');
   const [password, setPassword] = useState('');
   const [location, setLocation] = useState(null);
+  const [type, setType] = useState('');
+  const [post, setPost] = useState('');
+  const [err, setErr] = useState('');
 
-  const users = [
+  const userType = [
     {
       value: 'witness',
       label: 'Witness',
@@ -33,6 +38,21 @@ export default function RegisterPage() {
     {
       value: 'police',
       label: 'Police officer',
+    },
+  ];
+
+  const policeType = [
+    {
+      value: 'investigative',
+      label: 'Investigative',
+    },
+    {
+      value: 'traffic',
+      label: 'Traffic',
+    },
+    {
+      value: 'wildlife',
+      label: 'Wildlife',
     },
   ];
 
@@ -73,9 +93,69 @@ export default function RegisterPage() {
   }
 
   useEffect(() => {
+    dispatch(loadPosts());
     getLocation();
     JSON.stringify(user) !== '{}' && history.push('/home');
-  }, [history, user]);
+  }, [history, user, dispatch]);
+
+  const submitForm = () => {
+    if ((fullnames.length || email.length || phoneno.length) < 1) {
+      setErr('Fill in all fields');
+    }
+
+    if (password.length < 6) {
+      setErr('Password should have 6 or more characters');
+      return;
+    }
+
+    if (fullnames.length < 3) {
+      setErr('Name is short');
+      return;
+    }
+
+    if (phoneno.length !== 10) {
+      setErr('Enter valid phone');
+      return;
+    }
+
+    if (!location) {
+      setErr('Location is required');
+      return;
+    }
+
+    if (role === 'police') {
+      if ((post.length || type.length) < 1) {
+        setErr('Fill in all fields');
+        return;
+      }
+    }
+
+    role === 'police'
+      ? dispatch(
+          register({
+            fullnames,
+            email,
+            phoneno,
+            role,
+            location,
+            password,
+            type,
+            post: JSON.parse(post),
+          })
+        )
+      : dispatch(
+          register({
+            fullnames,
+            email,
+            phoneno,
+            role,
+            location,
+            password,
+          })
+        );
+  };
+
+  // console.log('locain', location);
 
   return (
     <Screen auth>
@@ -102,7 +182,7 @@ export default function RegisterPage() {
             marginBottom: 16,
           }}
         >
-          Users Sign Up Page
+          User SignUp Page
         </Typography>
         <TextField
           fullWidth
@@ -131,6 +211,7 @@ export default function RegisterPage() {
           style={{
             marginBottom: 16,
           }}
+          type='email'
           id='P_email'
           label='Input Email'
           variant='outlined'
@@ -140,6 +221,7 @@ export default function RegisterPage() {
 
         <TextField
           fullWidth
+          type='password'
           id='p_password'
           label='Input password'
           variant='outlined'
@@ -160,12 +242,50 @@ export default function RegisterPage() {
           value={role}
           onChange={event => setRole(event.target.value)}
         >
-          {users.map(option => (
+          {userType.map(option => (
             <MenuItem key={option.value} value={option.value}>
               {option.label}
             </MenuItem>
           ))}
         </TextField>
+        {role === 'police' && (
+          <>
+            <TextField
+              select
+              fullWidth
+              label='Select Police Type'
+              variant='outlined'
+              style={{
+                marginBottom: 16,
+              }}
+              value={type}
+              onChange={event => setType(event.target.value)}
+            >
+              {policeType.map(option => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              fullWidth
+              label='Select Police Post'
+              variant='outlined'
+              style={{
+                marginBottom: 16,
+              }}
+              value={post}
+              onChange={event => setPost(event.target.value)}
+            >
+              {posts.map(option => (
+                <MenuItem key={option.name} value={JSON.stringify(option)}>
+                  {option.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </>
+        )}
 
         {location === null && (
           <Button
@@ -185,16 +305,34 @@ export default function RegisterPage() {
           fullWidth
           variant='contained'
           color='primary'
-          onClick={() => {
-            dispatch(
-              register(fullnames, email, phoneno, role, location, password)
-            );
-          }}
+          onClick={submitForm}
           disabled={location === null}
           style={{}}
         >
           Register
         </Button>
+        {err && (
+          <Typography
+            color='error'
+            variant='body1'
+            style={{
+              marginTop: 16,
+            }}
+          >
+            {err}
+          </Typography>
+        )}
+        <Typography
+          variant='body1'
+          style={{
+            marginTop: 16,
+          }}
+          onClick={() => {
+            history.push('/');
+          }}
+        >
+          Already have an Account? Click Here
+        </Typography>
       </div>
     </Screen>
   );

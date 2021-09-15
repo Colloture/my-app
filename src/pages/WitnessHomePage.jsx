@@ -1,14 +1,4 @@
-import {
-  Avatar,
-  Button,
-  Card,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Typography,
-} from '@material-ui/core';
-import { Room } from '@material-ui/icons';
+import { Button, Card, Typography } from '@material-ui/core';
 import {
   GoogleMap,
   InfoWindow,
@@ -27,18 +17,24 @@ const containerStyle = {
   height: '100vh',
 };
 
-const center = {
-  lat: -0.43010375799626616,
-  lng: 36.98321622015955,
-};
-
 export default function WitnessHomePage() {
   const state = useSelector(st => st);
   const user = state.auth.user;
-  const police = state.data.users.list.filter(({ role }) => role === 'police');
 
   const [location, setLocation] = useState(null);
+  const [recenter, setRecenter] = useState(false);
+  const [displayType, setDisplayType] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
+
+  const police = state.data.users.list
+    .filter(({ role }) => role === 'police')
+    .filter(police => {
+      if (displayType) {
+        return police?.type === displayType;
+      } else {
+        return police;
+      }
+    });
 
   const history = useHistory();
   const dispatch = useDispatch();
@@ -70,12 +66,14 @@ export default function WitnessHomePage() {
     }
   };
 
-  console.log(police);
+  setTimeout(() => {
+    setRecenter(true);
+  }, 2000);
 
   useEffect(() => {
-    getLocation();
     dispatch(loadUsers());
-  }, [dispatch]);
+    getLocation();
+  }, [dispatch, recenter]);
 
   return (
     <Screen>
@@ -84,9 +82,9 @@ export default function WitnessHomePage() {
         style={{
           zIndex: 2,
           position: 'fixed',
-          top: 14,
-          left: 18,
-          width: window.innerWidth - 36,
+          top: 8,
+          left: 12,
+          width: window.innerWidth - 24,
         }}
       >
         <div
@@ -120,10 +118,65 @@ export default function WitnessHomePage() {
         </div>
       </Card>
 
+      <div
+        style={{
+          zIndex: 2,
+          position: 'fixed',
+          top: 64,
+          left: 12,
+          width: window.innerWidth - 24,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Button
+            size='small'
+            variant='contained'
+            onClick={() => {
+              setDisplayType(null);
+            }}
+          >
+            All
+          </Button>
+          <Button
+            size='small'
+            variant='contained'
+            onClick={() => {
+              setDisplayType('investigative');
+            }}
+          >
+            Investigative
+          </Button>
+          <Button
+            size='small'
+            variant='contained'
+            onClick={() => {
+              setDisplayType('traffic');
+            }}
+          >
+            Traffic
+          </Button>
+          <Button
+            size='small'
+            variant='contained'
+            onClick={() => {
+              setDisplayType('wildlife');
+            }}
+          >
+            Wildlife
+          </Button>
+        </div>
+      </div>
+
       {isLoaded && (
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={location || center}
+          center={{ lat: location?.latitude, lng: location?.longitude }}
           zoom={16}
           onLoad={onLoad}
           onUnmount={onUnmount}
@@ -138,47 +191,50 @@ export default function WitnessHomePage() {
           )}
 
           {police &&
-            police.map(({ location, fullnames, phoneno, email }) => {
-              console.log('mapLoc: ', location);
-              return (
-                <Marker
-                  position={{
-                    lat: location.latitude,
-                    lng: location.longitude,
-                  }}
-                  onClick={() => {
-                    setSelectedLocation(location);
-                  }}
-                >
-                  {selectedLocation === location && (
-                    <InfoWindow
-                      position={{
-                        lat: location.latitude,
-                        lng: location.longitude,
-                      }}
-                    >
-                      <List>
-                        <ListItem key={email + fullnames}>
-                          <ListItemAvatar>
-                            <Avatar>
-                              <Room />
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={fullnames}
-                            secondary={phoneno}
-                          />
-                        </ListItem>
+            police.map(
+              ({ location, fullnames, phoneno, email, post, type }) => {
+                return (
+                  <Marker
+                    key={Math.random() * 1000}
+                    position={{
+                      lat: location.latitude,
+                      lng: location.longitude,
+                    }}
+                    onClick={() => {
+                      setSelectedLocation(location);
+                    }}
+                  >
+                    {selectedLocation === location && (
+                      <InfoWindow
+                        position={{
+                          lat: location.latitude,
+                          lng: location.longitude,
+                        }}
+                      >
                         <div
                           style={{
                             width: '100%',
                             display: 'flex',
+                            flexDirection: 'column',
                             justifyContent: 'center',
-                            alignItems: 'center',
+                            // alignItems: 'center',
                           }}
                         >
+                          <Typography variant='body2' color='textPrimary'>
+                            {fullnames}
+                          </Typography>
+                          <Typography variant='body2' color='textSecondary'>
+                            {type || 'Investigative'}
+                          </Typography>
+                          <Typography variant='body2' color='textSecondary'>
+                            {phoneno}
+                          </Typography>
+                          <Typography variant='body2' color='primary'>
+                            {post?.name}
+                          </Typography>
                           <Button
                             variant='outlined'
+                            size='small'
                             onClick={() => {
                               location &&
                                 user &&
@@ -195,12 +251,12 @@ export default function WitnessHomePage() {
                             Send request
                           </Button>
                         </div>
-                      </List>
-                    </InfoWindow>
-                  )}
-                </Marker>
-              );
-            })}
+                      </InfoWindow>
+                    )}
+                  </Marker>
+                );
+              }
+            )}
         </GoogleMap>
       )}
     </Screen>

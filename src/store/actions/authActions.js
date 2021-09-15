@@ -34,7 +34,26 @@ export const login = ({ email, password }) => {
 
 export const register = values => {
   return dispatch => {
-    let { fullnames, email, phoneno, role, location, password } = values;
+    let { fullnames, email, phoneno, role, location, password, post, type } =
+      values;
+    let userData =
+      role === 'police'
+        ? {
+            fullnames,
+            email,
+            phoneno,
+            type,
+            role,
+            location,
+            post,
+          }
+        : {
+            fullnames,
+            email,
+            phoneno,
+            role,
+            location,
+          };
 
     const setBusy = busy => {
       dispatch({ type: 'REGISTER_BUSY', busy });
@@ -52,32 +71,22 @@ export const register = values => {
         firebase
           .database()
           .ref('users/' + data.user.uid)
-          .set({
-            fullnames,
-            email,
-            phoneno,
-            role,
-            location,
-          })
+          .set(userData)
           .then(() => {
-            firebase.auth().onAuthStateChanged(user => {
-              if (user) {
-                //redirect
-                firebase
-                  .database()
-                  .ref('users/' + user.uid)
-                  .get()
-                  .then(info => {
-                    if (info.val().role === 'police') {
-                      dispatch({ type: 'USER_REGISTER' });
-                      setBusy(false);
-                    } else {
-                      dispatch({ type: 'USER_REGISTER' });
-                      setBusy(false);
-                    }
-                  });
-              }
-            });
+            firebase
+              .auth()
+              .signInWithEmailAndPassword(email, password)
+              .then(() => {
+                const user = userData;
+
+                dispatch({ type: 'USER_LOGIN', user });
+                console.log('loginnn: ', user);
+                setBusy(false);
+              });
+          })
+          .catch(err => {
+            dispatch({ type: 'USER_LOGOUT_ERROR', err });
+            setBusy(false);
           });
       });
   };

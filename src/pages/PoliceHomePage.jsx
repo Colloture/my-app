@@ -27,18 +27,14 @@ const containerStyle = {
   height: '100vh',
 };
 
-const center = {
-  lat: -0.43010375799626616,
-  lng: 36.98321622015955,
-};
-
 export default function PoliceHome() {
-  const dispatch = useDispatch();
-
   const state = useSelector(st => st);
   const user = state.auth.user;
   const requests = state.data.requests.list;
 
+  const dispatch = useDispatch();
+
+  const [location, setLocation] = useState(null);
   const [otherLocation, setOtheLocation] = useState(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -55,9 +51,24 @@ export default function PoliceHome() {
     // setMap(null);
   }, []);
 
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        setLocation({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+      });
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+  };
+
+  getLocation();
+
   useEffect(() => {
     dispatch(loadRequests());
-  }, [dispatch]);
+  }, [dispatch, location]);
 
   return (
     <Screen>
@@ -79,11 +90,17 @@ export default function PoliceHome() {
             padding: 8,
           }}
         >
-          {' '}
-          <Typography color='primary'>
-            <b>{user.fullnames}</b>
-          </Typography>
-          <div>Police</div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <Typography color='primary'>
+              <b>{user.fullnames}</b>
+            </Typography>
+            . Police
+          </div>
           <Button
             size='small'
             variant='outlined'
@@ -134,26 +151,19 @@ export default function PoliceHome() {
       {isLoaded && (
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={center}
-          zoom={14}
+          center={{ lat: location?.latitude, lng: location?.longitude }}
+          zoom={16}
           onLoad={onLoad}
           onUnmount={onUnmount}
         >
-          <Marker
-            position={{
-              lat: -0.43010375799626616,
-              lng: 36.98321622015955,
-            }}
-          >
-            <InfoWindow
+          {location && (
+            <Marker
               position={{
-                lat: -0.43010375799626616,
-                lng: 36.98321622015955,
+                lat: location.latitude,
+                lng: location.longitude,
               }}
-            >
-              <div>Your Position</div>
-            </InfoWindow>
-          </Marker>
+            ></Marker>
+          )}
           {otherLocation && (
             <Marker
               position={{

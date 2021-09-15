@@ -5,6 +5,9 @@ const initialState = {
   users: {
     list: [],
   },
+  posts: {
+    list: [],
+  },
   err: null,
   busy: false,
 };
@@ -17,6 +20,8 @@ export default function dataReducer(state = initialState, action) {
       return { ...state, requests: { list: action.requests }, err: null };
     case 'LOAD_USERS':
       return { ...state, users: { list: action.requests }, err: null };
+    case 'LOAD_POSTS':
+      return { ...state, posts: { list: action.posts }, err: null };
     default:
       return { ...state };
   }
