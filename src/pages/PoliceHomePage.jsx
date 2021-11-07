@@ -7,7 +7,10 @@ import {
   ListItemAvatar,
   ListItemSecondaryAction,
   ListItemText,
+  Modal,
   Typography,
+  CardContent,
+  CardMedia,
 } from '@material-ui/core';
 import { Room } from '@material-ui/icons';
 import {
@@ -18,6 +21,7 @@ import {
 } from '@react-google-maps/api';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router';
 import { logout } from '../store/actions/authActions';
 import { loadRequests } from '../store/actions/dataActions';
 import Screen from '../templates/Screen';
@@ -28,6 +32,7 @@ const containerStyle = {
 };
 
 export default function PoliceHome() {
+  const history = useHistory();
   const state = useSelector(st => st);
   const user = state.auth.user;
   const requests = state.data.requests.list;
@@ -35,7 +40,8 @@ export default function PoliceHome() {
   const dispatch = useDispatch();
 
   const [location, setLocation] = useState(null);
-  const [otherLocation, setOtheLocation] = useState(null);
+  const [otherLocation, setOtherLocation] = useState(null);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -67,8 +73,9 @@ export default function PoliceHome() {
   getLocation();
 
   useEffect(() => {
+    user?.role === 'witness' && history.push('/witness-home');
     dispatch(loadRequests());
-  }, [dispatch, location]);
+  }, [dispatch, history, location, user?.role]);
 
   return (
     <Screen>
@@ -99,17 +106,31 @@ export default function PoliceHome() {
             <Typography color='primary'>
               <b>{user.fullnames}</b>
             </Typography>
-            . Police
+            . <span style={{ textTransform: 'capitalize' }}>{user?.role}</span>
           </div>
-          <Button
-            size='small'
-            variant='outlined'
-            onClick={() => {
-              dispatch(logout());
-            }}
-          >
-            Logout
-          </Button>
+          <div>
+            {user?.role === 'police' && (
+              <Button
+                size='small'
+                variant='outlined'
+                onClick={() => {
+                  history.push('/reports');
+                }}
+                style={{ marginRight: 8 }}
+              >
+                Crime Reports
+              </Button>
+            )}
+            <Button
+              size='small'
+              variant='outlined'
+              onClick={() => {
+                dispatch(logout());
+              }}
+            >
+              Logout
+            </Button>
+          </div>
         </div>
       </Card>
 
@@ -125,26 +146,54 @@ export default function PoliceHome() {
         }}
       >
         <List>
-          {requests.map(({ witness, phoneno, location }) => (
-            <ListItem key={Math.random() * 1000}>
-              <ListItemAvatar>
-                <Avatar>
-                  <Room />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary={witness} secondary={phoneno} />
-              <ListItemSecondaryAction>
-                <Button
-                  variant='outlined'
-                  onClick={() => {
-                    setOtheLocation({ witness, phoneno, location });
-                  }}
-                >
-                  Show Location
-                </Button>
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
+          {requests
+            .slice(0)
+            .reverse()
+            .map(({ witness, phoneno, location, imageURL, message }) => (
+              <ListItem key={Math.random() * 1000}>
+                <ListItemAvatar>
+                  <Avatar>
+                    <Room />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary={witness} secondary={phoneno} />
+                <ListItemSecondaryAction>
+                  <Button
+                    style={{ marginRight: 8 }}
+                    variant='outlined'
+                    size='small'
+                    onClick={() => {
+                      setOtherLocation({
+                        witness,
+                        phoneno,
+                        location,
+                        imageURL,
+                        message,
+                      });
+                    }}
+                  >
+                    Show Location
+                  </Button>
+                  <Button
+                    variant='outlined'
+                    size='small'
+                    onClick={() => {
+                      setOtherLocation({
+                        witness,
+                        phoneno,
+                        location,
+                        imageURL,
+                        message,
+                      });
+
+                      setReportOpen(true);
+                    }}
+                  >
+                    View
+                  </Button>
+                </ListItemSecondaryAction>
+              </ListItem>
+            ))}
         </List>
       </Card>
 
@@ -183,6 +232,71 @@ export default function PoliceHome() {
           )}
         </GoogleMap>
       )}
+
+      <ViewRequestModal
+        open={reportOpen}
+        onClose={() => {
+          setReportOpen(false);
+        }}
+        phone={otherLocation?.phoneno} //
+        message={otherLocation?.message}
+        imageURL={otherLocation?.imageURL}
+        fullnames={otherLocation?.witness} //
+      />
     </Screen>
   );
 }
+
+const ViewRequestModal = ({
+  open,
+  onClose,
+  phone,
+  message,
+  imageURL,
+  fullnames,
+}) => {
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Card style={{ margin: 14 }}>
+        <CardContent>
+          {imageURL && (
+            <CardMedia
+              style={{ height: 200, marginBottom: 16 }}
+              src={imageURL}
+              image={imageURL}
+            />
+          )}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <Typography color='primary'>
+              <b>{fullnames} </b>
+            </Typography>
+            | Witness Request
+          </div>
+          <Typography color='primary'>{message}</Typography>
+          {/* <Button
+            color='primary'
+            variant='contained'
+            size='small'
+            style={{ marginRight: 10, marginTop: 16 }}
+            onClick={onShowLocation}
+          >
+            Show Location
+          </Button> */}
+          <Button
+            variant='outlined'
+            size='small'
+            style={{ marginRight: 10, marginTop: 16 }}
+            onClick={onClose}
+          >
+            Close
+          </Button>
+        </CardContent>
+      </Card>
+    </Modal>
+  );
+};

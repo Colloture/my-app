@@ -75,9 +75,10 @@ export default function WitnessHomePage() {
   }, 2000);
 
   useEffect(() => {
+    user?.role === 'police' && history.push('/police-home');
     dispatch(loadUsers());
     getLocation();
-  }, [dispatch, recenter]);
+  }, [dispatch, history, recenter, user?.role]);
 
   return (
     <Screen>
@@ -108,7 +109,7 @@ export default function WitnessHomePage() {
             <Typography color='primary'>
               <b>{user.fullnames}</b>
             </Typography>
-            . Witnes
+            . <span style={{ textTransform: 'capitalize' }}>{user?.role}</span>
           </div>
           <Button
             size='small'
