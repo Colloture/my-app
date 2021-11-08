@@ -118,7 +118,7 @@ export default function PoliceHome() {
                 }}
                 style={{ marginRight: 8 }}
               >
-                Crime Reports
+                Reports
               </Button>
             )}
             <Button
@@ -147,6 +147,7 @@ export default function PoliceHome() {
       >
         <List>
           {requests
+            .filter(({ pemail }) => user?.email == pemail)
             .slice(0)
             .reverse()
             .map(({ witness, phoneno, location, imageURL, message }) => (
@@ -172,7 +173,7 @@ export default function PoliceHome() {
                       });
                     }}
                   >
-                    Show Location
+                    Show
                   </Button>
                   <Button
                     variant='outlined'
@@ -285,7 +286,7 @@ const ViewRequestModal = ({
             style={{ marginRight: 10, marginTop: 16 }}
             onClick={onShowLocation}
           >
-            Show Location
+            Show
           </Button> */}
           <Button
             variant='outlined'

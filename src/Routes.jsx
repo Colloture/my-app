@@ -7,6 +7,7 @@ import WitnessHomePage from './pages/WitnessHomePage';
 import SendRequestPage from './pages/SendRequestPage';
 import Home from './pages/Home';
 import ReportsPage from './pages/ReportsPage';
+import RequestsPage from './pages/RequestsPage';
 
 export default function Routes() {
   return (
@@ -19,6 +20,7 @@ export default function Routes() {
         <Route exact component={WitnessHomePage} path='/witness-home' />
         <Route exact component={SendRequestPage} path='/send-request' />
         <Route exact component={ReportsPage} path='/reports' />
+        <Route exact component={RequestsPage} path='/requests' />
       </Switch>
     </BrowserRouter>
   );

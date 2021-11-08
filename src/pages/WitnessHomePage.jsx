@@ -111,15 +111,30 @@ export default function WitnessHomePage() {
             </Typography>
             . <span style={{ textTransform: 'capitalize' }}>{user?.role}</span>
           </div>
-          <Button
-            size='small'
-            variant='outlined'
-            onClick={() => {
-              dispatch(logout());
-            }}
-          >
-            Logout
-          </Button>
+          <div>
+            {' '}
+            {user?.role === 'witness' && (
+              <Button
+                size='small'
+                variant='outlined'
+                onClick={() => {
+                  history.push('/requests');
+                }}
+                style={{ marginRight: 8 }}
+              >
+                Requests
+              </Button>
+            )}
+            <Button
+              size='small'
+              variant='outlined'
+              onClick={() => {
+                dispatch(logout());
+              }}
+            >
+              Logout
+            </Button>
+          </div>
         </div>
       </Card>
 
