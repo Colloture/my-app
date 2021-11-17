@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.codeinfluencer.interest_hub",
+      "sha256_cert_fingerprints": [
+        "A0:47:14:7C:F5:F4:35:F4:7E:DE:C6:F1:28:EC:6E:E5:8B:62:B4:DF:41:93:84:5B:C9:30:78:19:39:6A:29:5C"
+      ]
+    }
+  }
+]

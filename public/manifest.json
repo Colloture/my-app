@@ -1,10 +1,10 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "iHub",
+  "name": "Crime Response",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "src": "favicon.png",
+      "sizes": "64x64",
       "type": "image/x-icon"
     },
     {
@@ -16,10 +16,49 @@
       "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Witness",
+      "short_name": "Events",
+      "description": "View Witness Homepage",
+      "url": "/witness-home",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Police",
+      "short_name": "Events",
+      "description": "View Police Homepage",
+      "url": "/police-home",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ],
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "url": ".",
+  "manifestUrl": "manifest.json",
+  "lang": "en",
+  "scope": "/",
+  "description": "Report crime and accidents to nearby police officers.",
+  "categories": ["social"]
 }
