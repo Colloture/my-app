@@ -22,6 +22,7 @@ export default function ReportsPage() {
   const state = useSelector(st => st);
   const user = state.auth.user;
   const requests = state.data.requests.list;
+  const allanAIRead = state.data.requestsRead;
   const history = useHistory();
 
   const dispatch = useDispatch();
@@ -82,7 +83,7 @@ export default function ReportsPage() {
             <Typography color='primary'>
               <b>{user.fullnames}</b>
             </Typography>
-            <b>. Crime Reports</b>
+            <b>. Crime Reports{allanAIRead?.index}</b>
           </div>
           <Button
             size='small'
@@ -111,8 +112,13 @@ export default function ReportsPage() {
           .map(({ witness, phoneno, location, imageURL, message }, index) => (
             <Accordion
               key={Math.random() * 1000}
-              expanded={expanded === index}
+              expanded={expanded === index || index === allanAIRead?.index}
               onChange={handleChange(index)}
+              style={{
+                border:
+                  (expanded === index || index === allanAIRead?.index) &&
+                  '2px solid #3f51b5',
+              }}
             >
               <AccordionSummary
                 expandIcon={<ExpandMore />}

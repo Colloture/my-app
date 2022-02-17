@@ -22,6 +22,7 @@ export default function RequestsPage() {
   const state = useSelector(st => st);
   const user = state.auth.user;
   const requests = state.data.requests.list;
+
   const history = useHistory();
 
   const dispatch = useDispatch();
@@ -108,7 +109,7 @@ export default function RequestsPage() {
         {requests
           .filter(
             ({ witness }) =>
-              user?.role == 'witness' && user?.fullnames == witness
+              user?.role === 'witness' && user?.fullnames === witness
           )
           .slice(0)
           .reverse()

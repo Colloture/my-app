@@ -10,6 +10,10 @@ const initialState = {
   },
   err: null,
   busy: false,
+  requestsRead: {
+    reading: false,
+    index: 0,
+  },
 };
 
 export default function dataReducer(state = initialState, action) {
@@ -18,6 +22,8 @@ export default function dataReducer(state = initialState, action) {
       return { ...state, busy: action.busy };
     case 'LOAD_REQUESTS':
       return { ...state, requests: { list: action.requests }, err: null };
+    case 'READ_REQUESTS':
+      return { ...state, requestsRead: action.read, err: null };
     case 'LOAD_USERS':
       return { ...state, users: { list: action.requests }, err: null };
     case 'LOAD_POSTS':

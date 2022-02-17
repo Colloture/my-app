@@ -59,3 +59,14 @@ export const loadPosts = () => {
       });
   };
 };
+
+export const readRequests = (reading, index) => {
+  return dispatch => {
+    const read = {
+      reading,
+      index,
+    };
+
+    dispatch({ type: 'READ_REQUESTS', read });
+  };
+};
