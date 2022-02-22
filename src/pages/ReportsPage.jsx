@@ -115,9 +115,7 @@ export default function ReportsPage() {
               expanded={expanded === index || index === allanAIRead?.index}
               onChange={handleChange(index)}
               style={{
-                border:
-                  (expanded === index || index === allanAIRead?.index) &&
-                  '2px solid #3f51b5',
+                border: index === allanAIRead?.index && '2px solid #3f51b5',
               }}
             >
               <AccordionSummary

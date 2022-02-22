@@ -15,15 +15,15 @@ function App() {
   const revRequests = requests.slice(0).reverse();
 
   useEffect(() => {
-    let allanBtnInstance = alanBtn({
+    const allanBtnInstance = alanBtn({
       key: '8b1a57ed13ce215851fa29498704c1a32e956eca572e1d8b807a3e2338fdd0dc/stage',
       onCommand: ({ command, reportIndex }) => {
         switch (command) {
           case 'openReports':
-            !user?.email && allanBtnInstance.playText('Please log in first');
-            user?.role !== 'police' &&
-              allanBtnInstance.playText("Sorry, you're not a cop");
             user?.email && user?.role === 'police' && history.push('/reports');
+            // !user?.email && allanBtnInstance.playText('Please log in first');
+            // user?.role !== 'police' &&
+            //   allanBtnInstance.playText("Sorry, you're not a cop");
             break;
           case 'logout':
             dispatch(logout());
@@ -34,6 +34,7 @@ function App() {
           case 'readReports':
             allanBtnInstance.callProjectApi('readReportsClient', {
               requests: revRequests,
+              user,
             });
             break;
           case 'readSpecificReport':
@@ -44,7 +45,7 @@ function App() {
         }
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // return allanBtnInstance.deactivate();
   }, []);
 
   return <Routes />;

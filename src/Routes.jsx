@@ -53,30 +53,6 @@ export default function Routes() {
           <Route exact component={RequestsPage} path='/requests' />
         </Switch>
       </BrowserRouter>
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        open={show}
-        autoHideDuration={6000}
-        onClose={() => {
-          setShow(false);
-        }}
-        message={`${notification?.title} . ${notification?.body}`}
-        action={
-          <IconButton
-            size='small'
-            aria-label='close'
-            color='inherit'
-            onClick={() => {
-              setShow(false);
-            }}
-          >
-            <CloseRounded fontSize='small' />
-          </IconButton>
-        }
-      />
     </>
   );
 }
